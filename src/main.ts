@@ -16,8 +16,16 @@ canvas.onclick = clickCanvas
 const mov = new Movable(canvas2, ctx2, () => {
   drawLine()
 })
-
-mov.zoomTo(12)
+const mov2 = new Movable(canvas, ctx, ()=>{
+  ctx.drawImage(map, 0, 0)
+})
+mov2.onClickWorld = (([x,y])=>{
+const col = colToRgb(img.getNum(x,y))
+console.log(x,y)
+console.log(col)
+})
+mov.bindAnother(mov2)
+// mov.zoomTo(12)
 
 function clickCanvas(e) {
   play(e.offsetX, e.offsetY)
@@ -31,8 +39,12 @@ ctx2.lineWidth = 0.1
 function drawLine() {
   const lines = window.coast || []
   ctx2.fillStyle = '#2f2'
-  ctx2.fillRect(0, 0, 1000, 1000)
-  ctx2.fill()
+  const T = ctx2?.getTransform()
+  ctx?.setTransform(new DOMMatrix(0))
+  ctx2?.clearRect(0,0,1000,1000)
+  ctx?.setTransform(T)
+  // ctx2.fillRect(0, 0, 1000, 1000)
+  // ctx2.fill()
   ctx2.beginPath()
   ctx2.moveTo(lines[0]?.[0], lines[0]?.[1])
   lines.forEach(([x, y]) => {
@@ -48,10 +60,10 @@ const colToRgb = (col: number) => {
   const r = (col & (2 ** 8 - 1 << 16)) >> 16
   const g = (col & (2 ** 8 - 1 << 8)) >> 8
   const b = (col & (2 ** 8 - 1))
-  return `rgb(${b},${g},${r})`
+  return `rgb(${r},${g},${b})`
 }
 
-// ctx2.lineWidth =1  
+// ctx2.lineWidth =1 
 function drawBorder([col, lines]) {
   ctx2.beginPath()
   ctx2.moveTo(lines[1][0], lines[1][1])
@@ -65,9 +77,10 @@ function drawBorder([col, lines]) {
   })
   ctx2.closePath()
 
-  ctx2.fillStyle = colToRgb(col)
-  ctx2.fill()
-  // ctx2.stroke()
+  // ctx2.fillStyle = colToRgb(col)
+  // ctx2.fill()
+  ctx2.strokeStyle = colToRgb(col)
+  ctx2.stroke()
 }
 
 function drawBorders() {
@@ -107,7 +120,7 @@ function play(x = 0, y = 0) {
     const c=colToRgb(col)
     cnt[c] = (cnt[c] || 0) + 1
   })
-  // console.table(Object.entries(cnt))
+  console.table(Object.entries(cnt))
   drawLine()
 
 

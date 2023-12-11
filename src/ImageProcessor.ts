@@ -11,7 +11,7 @@ export class ImageProcessor {
     this.data = d;
   }
   getPixel(x, y) {
-    if (x < 0 || x > this.w || y < 0 || y > this.h) return [0, 0, 0];
+    if (x < 0 || x > this.w || y < 0 || y > this.h) return [0, 0, 1];
     const xx = Math.max(0, Math.min(x, this.h));
     const yy = Math.max(0, Math.min(y, this.w));
     const d = this.data;
@@ -20,10 +20,13 @@ export class ImageProcessor {
     // console.log(d[base]);
     return [d[base], d[base + 1], d[base + 2]];
   }
+  getCol(r,g,b){
+    return (r  <<16) + (g <<8) + b
+  }
   getNum(x, y) {
     const p = this.getPixel(x, y);
     // return p.join()
-    return (p[2] * (2 ** 16)) + (p[1] * (2 ** 8)) + p[0];
+    return this.getCol(...p);
   }
   getSquare(x, y) {
     const P = this.getNum.bind(this);
@@ -36,17 +39,23 @@ export class ImageProcessor {
     const S = this.getSquare(x, y);
     // console.log(S);
     const main = c; //?? S[1][1]
+    const cmp = (col) => {
+      if(main === this.getCol(41,140,233)) return col === main
+      if(main === this.getCol(255,255,255)) return col === main
+      return col === main// || col === this.getCol(255,255,255)//  || col=== 0 || col === 255<<16+255<<8+255
+    }
     return [
-      S[0][0] === main, S[0][1] === main,
-      S[1][0] === main, S[1][1] === main
+      cmp(S[0][0]), cmp(S[0][1]),
+      cmp(S[1][0]), (S[1][1] === main)
     ];
   }
   forEachPixel(fn: Function) {
-    for (let i = 0; i < this.w; ++i)
-      for (let j = 0; j < this.h; ++j) {
+    for (let j = 0; j < this.h; ++j) {
+    for (let i = 0; i < this.w; ++i){
         const col = this.getNum(i, j)
         fn(col, i, j)
       }
+    }
   }
   forEachColor(fn: Function) {
     const colors: any = {}
@@ -121,9 +130,9 @@ export class ImageProcessor {
     const result: Point[] = []
     const [lu, ru,
       lb, rb] = this.getBorders(x, y, col)
+      if (rb ^ lb) result.push([x, y + 1])
+      if (ru ^ rb) result.push([x + 1, y])
     if (lb ^ lu) result.push([x - 1, y])
-    if (rb ^ lb) result.push([x, y + 1])
-    if (ru ^ rb) result.push([x + 1, y])
     if (lu ^ ru) result.push([x, y - 1])
     return result
   }
@@ -136,14 +145,14 @@ export class ImageProcessor {
       for (let i = 0; i < result.length - 1; ++i) {
         const l1 = result[i]
         const l2 = result[i + 1]
-        if (eq(l1, p1) && eq(l2, p2) || eq(l1, p2) && eq(l2, p1)) cnt++
+        if (eq(l1, p1) && eq(l2, p2) || eq(l1, p2) && eq(l2, p1)) return true
       }
       return cnt > 0
     }
     let cnt = 0;
     while (true) {
       const dirs = this.getPossibleDirections(p, col)
-      const filtered = dirs.filter(x => !isLineExistsMore1Times(p, x))
+      const filtered = dirs.filter(x => !isLineExistsMore1Times(x, p))
       if (filtered.length === 0) {
         console.log('Мы в тупике');
         break
@@ -151,9 +160,9 @@ export class ImageProcessor {
       if (filtered.length > 1) {
         console.log('Мы на развилке');
       }
-      const next = filtered[0]
+      const next = filtered.at(-1)
       if (eq(result[0], next)) {
-        result.push(next)
+        // result.push(next)
         break
       }
       result.push(next)

@@ -4,6 +4,7 @@ export class Movable {
     redraw = null
     zoom = 1
     translate = [0, 0]
+    other = null
 
     constructor(canvas, ctx, redraw) {
         this.ctx = ctx
@@ -16,16 +17,18 @@ export class Movable {
 
     }
 
+    bindAnother(other: Movable){
+        this.other = other 
+    }
+
     onDrag(dx, dy) {
+        this.other?.onDrag(dx, dy)
         const z = this.zoom
         this.ctx.translate((dx) / z, (dy) / z)
         this.translate = [this.translate[0] + (dx) / z, this.translate[1] + (dy) / z]
         this.redraw()
     }
 
-    /**
-     * @argument {MouseEvent} e
-     */
     onmousedown(e) {
         this.moving = true;
         this.last = [e.offsetX, e.offsetY]
@@ -44,9 +47,6 @@ export class Movable {
         this.moving = false;
     }
 
-    /**
-     * @argument {WheelEvent} e
-     */
     onwheel(e) {
         const factor = e.deltaY < 0 ? 1.1 : 0.9
         const [mx, my] = [e.offsetX, e.offsetY]
@@ -54,6 +54,7 @@ export class Movable {
     }
 
     zoomTo(factor, mx=0, my=0) {
+        this.other?.zoomTo(factor,mx,my)
         this.zoom *= factor
         const [x, y] = this.getWorldCoord(mx, my)
 
@@ -69,10 +70,11 @@ export class Movable {
         var imatrix = matrix.invertSelf();
         var xx = x * imatrix.a + y * imatrix.c + imatrix.e;
         var yy = x * imatrix.b + y * imatrix.d + imatrix.f;
-        return [xx, yy]
+        return [~~xx, ~~yy]
     }
     onclick(e) {
         const [x, y] = [e.offsetX, e.offsetY]
+        this.onClickWorld(this.getWorldCoord(x,y))
 
     }
 }
