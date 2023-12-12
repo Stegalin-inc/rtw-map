@@ -1,4 +1,5 @@
 import { Movable } from "./MovableCanvas"
+import { conf } from "./config"
 import { img } from "./img"
 import { removeRepeate } from "./utils"
 import { chaikin } from "./utils"
@@ -32,17 +33,22 @@ function clickCanvas(e) {
   log(img.getNum(e.offsetX, e.offsetY))
 }
 
+partRange.oninput = e=>{
+  conf.chaikin.part = e.target.value
+  play()
+}
+
 ctx2.strokeStyle = 'gray'
 ctx2.strokeStyle = '#cf2'
 // ctx2.setLineDash([3, 1])
-ctx2.lineWidth = 0.1
+ctx2.lineWidth = conf.borderWidth
 function drawLine() {
   const lines = window.coast || []
   ctx2.fillStyle = '#2f2'
   const T = ctx2?.getTransform()
-  ctx?.setTransform(new DOMMatrix(0))
+  ctx2?.setTransform(new DOMMatrix([1,0,0,1,0,0]))
   ctx2?.clearRect(0,0,1000,1000)
-  ctx?.setTransform(T)
+  ctx2?.setTransform(T)
   // ctx2.fillRect(0, 0, 1000, 1000)
   // ctx2.fill()
   ctx2.beginPath()
@@ -77,14 +83,25 @@ function drawBorder([col, lines]) {
   })
   ctx2.closePath()
 
-  // ctx2.fillStyle = colToRgb(col)
-  // ctx2.fill()
-  ctx2.strokeStyle = colToRgb(col)
-  ctx2.stroke()
+  if(conf.regionMode === 'fill'){
+
+    ctx2.fillStyle = colToRgb(col)
+    ctx2.fill()
+  }else{
+
+    ctx2.strokeStyle = colToRgb(col)
+    ctx2.stroke()
+  }
 }
 
 function drawBorders() {
-  if (!window.borders) return
+  if (!window.B) return
+  window.B.data.forEach(x=>{
+    drawBorder([0, x.val.at(0)])
+
+  })
+  
+  return
   for (let border of Object.values(window.borders)) {
     drawBorder(border)
   }
@@ -95,9 +112,10 @@ function getLineForColor(col, x = map.width, y = map.height) {
       const f = img.getBorders(i, j, col)
       if ((!f[0]) && f[3]) {
         let line = img.getLine2([i, j], img.getNum(i, j))
+        if(conf.needRemove)
         line = removeRepeate(line)
         // line = chaikin(line, 2, 3 / 4)
-        line = chaikin(line, 2, 2 / 3)
+        line = chaikin(line, conf.chaikin.pass, conf.chaikin.part)
         // line = chaikin(line, 3, 1/2)
         return line
         return chaikin((chaikin((line, 1), 3, 1 / 2)), 3, 3 / 4)
@@ -113,14 +131,15 @@ function play(x = 0, y = 0) {
     if (!window.borders[col]) {
       window.borders[col] = [col, getLineForColor(col)]
     }
-
+    
   })
   const cnt = {}
   img.forEachPixel(col => {
     const c=colToRgb(col)
     cnt[c] = (cnt[c] || 0) + 1
   })
-  console.table(Object.entries(cnt))
+  // console.table(Object.entries(cnt))
+  window.B = img.allll()
   drawLine()
 
 

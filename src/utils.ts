@@ -1,4 +1,4 @@
-import { Point } from "./types"
+import { Line, Point } from "./types"
 
 export function chaikin(arr: Point[], num: number, part = 3/4): Point[] {
     if (num === 0) return arr
@@ -71,7 +71,21 @@ export function removeRepeateOld(lines: Point[]) {
 
 }
 
-export const eq = (a:Point, b:Point) => {
+const isPoint = (x: any): x is Point => x.length===2 && typeof x[0] === 'number' && typeof x[1] === 'number'
+const isLine = (x: any): x is Line => x.length===2 && isPoint(x[0]) && isPoint(x[1])
+
+
+const eqPoint = ([Ax, Ay]:Point, [Bx, By]:Point) => {
+    return Ax === Bx && Ay === By
+}
+
+const eqLine = ([A1, B1]:Line, [A2,B2]:Line) => {
+    return eqPoint(A1, A2) && eqPoint(B1, B2) || eqPoint(A1, B2) && eqPoint(B1, A2)
+}
+
+export const eq = (a:Point|Line, b:Point|Line) => {
     if(!a || !b) return false
-    return a[0] === b[0] && a[1] === b[1]
+    if(isPoint(a) && isPoint(b)) return eqPoint(a, b)
+    if(isLine(a) && isLine(b)) return eqLine(a, b)
+    return a === b
 }
