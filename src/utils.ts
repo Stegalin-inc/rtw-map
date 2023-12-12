@@ -75,11 +75,11 @@ const isPoint = (x: any): x is Point => x.length===2 && typeof x[0] === 'number'
 const isLine = (x: any): x is Line => x.length===2 && isPoint(x[0]) && isPoint(x[1])
 
 
-const eqPoint = ([Ax, Ay]:Point, [Bx, By]:Point) => {
+export const eqPoint = ([Ax, Ay]:Point, [Bx, By]:Point) => {
     return Ax === Bx && Ay === By
 }
 
-const eqLine = ([A1, B1]:Line, [A2,B2]:Line) => {
+export const eqLine = ([A1, B1]:Line, [A2,B2]:Line) => {
     return eqPoint(A1, A2) && eqPoint(B1, B2) || eqPoint(A1, B2) && eqPoint(B1, A2)
 }
 

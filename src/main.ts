@@ -11,7 +11,7 @@ const ctx2 = canvas2.getContext('2d')
 const map = document.getElementsByTagName('img')[0]
 const log = console.log
 canvas.onclick = clickCanvas
-
+const cols =[ ]
 
 
 const mov = new Movable(canvas2, ctx2, () => {
@@ -21,9 +21,7 @@ const mov2 = new Movable(canvas, ctx, ()=>{
   ctx.drawImage(map, 0, 0)
 })
 mov2.onClickWorld = (([x,y])=>{
-const col = colToRgb(img.getNum(x,y))
-console.log(x,y)
-console.log(col)
+cols.push(img.getNum(x,y))
 })
 mov.bindAnother(mov2)
 // mov.zoomTo(12)
@@ -72,7 +70,7 @@ const colToRgb = (col: number) => {
 // ctx2.lineWidth =1 
 function drawBorder([col, lines]) {
   ctx2.beginPath()
-  ctx2.moveTo(lines[1][0], lines[1][1])
+  ctx2.moveTo(lines[0][0], lines[0][1])
   // ctx2.setLineDash([5, 3])
   lines.forEach(([x, y], i) => {
     /*    const [xx,yy] = lines[i+1] || [0, 0]
@@ -81,10 +79,10 @@ function drawBorder([col, lines]) {
        ctx2?.quadraticCurveTo(x,y, xx,yy) */
     ctx2.lineTo(x, y)
   })
-  ctx2.closePath()
-
+  
   if(conf.regionMode === 'fill'){
-
+    
+    ctx2.closePath()
     ctx2.fillStyle = colToRgb(col)
     ctx2.fill()
   }else{
@@ -96,9 +94,15 @@ function drawBorder([col, lines]) {
 
 function drawBorders() {
   if (!window.B) return
+  /*   
+  if(cols.length<2)return
+  window.B.get([cols.at(-1),cols.at(-2)])?.forEach(x=>{
+    drawBorder([0, x])
+  }) */
   window.B.data.forEach(x=>{
-    drawBorder([0, x.val.at(0)])
-
+    // drawBorder([0, x.val.at(0)])
+    if(x.key.includes(img.getCol(41, 140, 233))) return
+    x.val.forEach(y=>drawBorder([0, y]))
   })
   
   return
@@ -127,7 +131,7 @@ function play(x = 0, y = 0) {
   const col = img.getNum(x, y)
   window.coast = getLineForColor(col)
   window.borders = {}
-  img.forEachColor((col) => {
+ /*  img.forEachColor((col) => {
     if (!window.borders[col]) {
       window.borders[col] = [col, getLineForColor(col)]
     }
@@ -137,9 +141,24 @@ function play(x = 0, y = 0) {
   img.forEachPixel(col => {
     const c=colToRgb(col)
     cnt[c] = (cnt[c] || 0) + 1
-  })
+  }) */
   // console.table(Object.entries(cnt))
   window.B = img.allll()
+  window.B.data.forEach(x=>{
+    // drawBorder([0, x.val.at(0)])
+    x.val.forEach((y,i)=>{
+      let line = y
+      const a=line.at(0)
+      const b=line.at(-1)
+      if(conf.needRemove)
+      line = removeRepeate(y)
+      // line = chaikin(line, 2, 3 / 4)
+      line = chaikin(y, conf.chaikin.pass, conf.chaikin.part)
+      // line.pop()
+      for(let i=0;i<conf.chaikin.pass*4;++i)line.pop();
+      x.val[i] = [a,...line,b]
+    })
+  })
   drawLine()
 
 

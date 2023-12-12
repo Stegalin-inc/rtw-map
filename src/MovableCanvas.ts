@@ -72,6 +72,8 @@ export class Movable {
         var yy = x * imatrix.b + y * imatrix.d + imatrix.f;
         return [~~xx, ~~yy]
     }
+    onClickWorld(e) {
+    }
     onclick(e) {
         const [x, y] = [e.offsetX, e.offsetY]
         this.onClickWorld(this.getWorldCoord(x,y))

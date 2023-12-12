@@ -1,5 +1,5 @@
-import { Point } from "./types";
-import { eq } from "./utils";
+import { Line, Point } from "./types";
+import { eq, eqLine } from "./utils";
 
 export class ImageProcessor {
   data = [];
@@ -124,16 +124,17 @@ export class ImageProcessor {
   }
   private getPossibleDirections([x, y]: Point, col: number, col2: number) {
     const result: Point[] = [];
-    const cond = (a, b) => (a === col && b === col2) || (b === col && a === col2);
-    if (!col2) {
+    const cond = (a, b) => (a === col && b === col2)// || (b === col && a === col2);
+    if (col2===undefined) {
       const [lu, ru, lb, rb] = this.getBorders(x, y, col, col2);
       if (rb ^ lb) result.push([x, y + 1]);
       if (ru ^ rb) result.push([x + 1, y]);
       if (lb ^ lu) result.push([x - 1, y]);
       if (lu ^ ru) result.push([x, y - 1]);
     } else {
-      const [[lu, ru], [lb, rb]] = this.getSquare(x, y);
-      if (cond(lu, lb)) result.push([x, y + 1]);
+      const [[lu, ru], 
+             [lb, rb]] = this.getSquare(x, y);
+      if (cond(rb, lb)) result.push([x, y + 1]);
       if (cond(ru, rb)) result.push([x + 1, y]);
       if (cond(lb, lu)) result.push([x - 1, y]);
       if (cond(lu, ru)) result.push([x, y - 1]);
@@ -170,6 +171,7 @@ export class ImageProcessor {
         break;
       }
       result.push(next);
+      walked?.set([next,p], true)
       p = next;
       if (++cnt > 6000) {
         console.log("Очень много итераций");
@@ -181,6 +183,10 @@ export class ImageProcessor {
   }
   private pointId([x, y]: Point) {
     return x * this.w + y;
+  }
+  private lineId([a, b]: Line) {
+    if(this.pointId(a)<this.pointId(b)) return [a,b].toString()
+    return [b,a].toString()
   }
   getAllBordersLines2() {
     // const painted;
@@ -281,7 +287,7 @@ export class ImageProcessor {
     };
   }
   allll() {
-    const walked = MyMap(eq);
+    const walked = MyMap2(this.lineId.bind(this));
     const borders = MyMap((a,b) => a[0]===b[0]&&a[1]===b[1] || a[0]===b[1]&&a[1]===b[0])
     this.forEachPixel((c, i, j) => {
       const p: Point = [i, j];
@@ -290,24 +296,24 @@ export class ImageProcessor {
       if (!walked.has([p, dirs.up]) && lu !== ru) {
         const pair = [lu,ru]
         // if(!borders.has(pair)){borders.set(pair, [])}
-        walked.set(pair, true)
+        walked.set([p, dirs.up], true)
         borders.get(pair, []).push(this.getLine2(dirs.up, lu, ru, [p, dirs.up], walked));
       }
       if (!walked.has([p, dirs.ri]) && ru !== rb) {
-        const pair = [ru,lb]
-        walked.set(pair, true)
+        const pair = [ru,rb]
+        walked.set([p, dirs.ri], true)
         // if(!borders.has(pair)){borders.set(pair, [])}
         borders.get(pair, []).push(this.getLine2( dirs.ri, ru, rb, [p, dirs.ri], walked));
       }
       if (!walked.has([p, dirs.do]) && rb !== lb) {
         const pair = [rb,lb]
-        walked.set(pair, true)
+        walked.set([p, dirs.do], true)
         // if(!borders.has(pair)){borders.set(pair, [])}
         borders.get(pair, []).push(this.getLine2( dirs.do, rb, lb, [p, dirs.do], walked));
       }
       if (!walked.has([p, dirs.le]) && lb !== lu) {
         const pair = [lb,lu]
-        walked.set(pair, true)
+        walked.set([p, dirs.le], true)
         // if(!borders.has(pair)){borders.set(pair, [])}
         borders.get(pair, []).push(this.getLine2( dirs.le, lb, lu, [p, dirs.le], walked));
       }
@@ -331,5 +337,18 @@ const MyMap = <T>(cmp: (a:T, b:T) => boolean) => ({
     if(this.has(l))return this.data.find((x) => cmp(x.key, l)).val;
     this.set(l, init)
     return init
+  },
+});
+
+const MyMap2 = <T>(id: (a:T) => any) => ({
+  data: {},
+  set(l: T, val: any) {
+    this.data[id(l)] = val
+  },
+  has(l: T) {
+    return id(l) in this.data
+  },
+  get(l: T, init: any) {
+    return this.data[id(l)]
   },
 });
