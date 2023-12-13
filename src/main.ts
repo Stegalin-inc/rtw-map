@@ -22,7 +22,9 @@ const mov2 = new Movable(canvas, ctx, ()=>{
 })
 mov2.onClickWorld = (([x,y])=>{
 cols.push(img.getNum(x,y))
+drawLine()
 })
+mov.onClickWorld = mov2.onClickWorld
 mov.bindAnother(mov2)
 // mov.zoomTo(12)
 
@@ -68,10 +70,10 @@ const colToRgb = (col: number) => {
 }
 
 // ctx2.lineWidth =1 
-function drawBorder([col, lines]) {
+function drawBorder([col, lines, style]) {
   ctx2.beginPath()
   ctx2.moveTo(lines[0][0], lines[0][1])
-  // ctx2.setLineDash([5, 3])
+
   lines.forEach(([x, y], i) => {
     /*    const [xx,yy] = lines[i+1] || [0, 0]
        if(xx==0&&yy==0) return
@@ -88,21 +90,34 @@ function drawBorder([col, lines]) {
   }else{
 
     ctx2.strokeStyle = colToRgb(col)
+    if(style){
+      ctx2.setLineDash([1, 0.5])
+      ctx2.lineWidth =0.1 
+      ctx2.strokeStyle = 'gray'
+    } else {
+      ctx2.setLineDash([])
+      ctx2.lineWidth =0.5 
+      
+    }
     ctx2.stroke()
   }
 }
 
 function drawBorders() {
   if (!window.B) return
-  /*   
-  if(cols.length<2)return
+    
+/*   if(cols.length<2)return
   window.B.get([cols.at(-1),cols.at(-2)])?.forEach(x=>{
     drawBorder([0, x])
   }) */
   window.B.data.forEach(x=>{
     // drawBorder([0, x.val.at(0)])
+    const a = cols.includes(x.key[0])
+    const b = cols.includes(x.key[1])
+    if(!(a^b) && !(a&&b)) return
     if(x.key.includes(img.getCol(41, 140, 233))) return
-    x.val.forEach(y=>drawBorder([0, y]))
+    // const c = Math.random()*255**3
+    x.val.forEach(y=>drawBorder([0xff1100, y, a&&b]))
   })
   
   return
@@ -150,12 +165,12 @@ function play(x = 0, y = 0) {
       let line = y
       const a=line.at(0)
       const b=line.at(-1)
-      if(conf.needRemove)
+      // if(conf.needRemove)
       line = removeRepeate(y)
       // line = chaikin(line, 2, 3 / 4)
-      line = chaikin(y, conf.chaikin.pass, conf.chaikin.part)
+      line = chaikin(line, conf.chaikin.pass, conf.chaikin.part)
       // line.pop()
-      for(let i=0;i<conf.chaikin.pass*4;++i)line.pop();
+      for(let i=0;i<2**(conf.chaikin.pass+1);++i)line.pop();
       x.val[i] = [a,...line,b]
     })
   })
