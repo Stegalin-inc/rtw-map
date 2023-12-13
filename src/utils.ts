@@ -10,7 +10,7 @@ export function chaikin(arr: Point[], num: number, part = 3/4): Point[] {
             [rest * c[0] + part * arr[(i + 1) % l][0], rest * c[1] + part * arr[(i + 1) % l][1]]
         ] as Point[]
     }).flat()
-    return num === 1 ? smooth : chaikin(smooth, num - 1)
+    return num === 1 ? smooth : chaikin(smooth, num - 1, part)
 }
 
 const sameLine = ([Ax, Ay]: Point, [Bx, By]: Point, [Cx, Cy]:Point) => Math.abs( Ax * (By - Cy) + Bx * (Cy - Ay) + Cx * (Ay - By) ) < Number.EPSILON
@@ -89,3 +89,10 @@ export const eq = (a:Point|Line, b:Point|Line) => {
     if(isLine(a) && isLine(b)) return eqLine(a, b)
     return a === b
 }
+
+export const colToRgb = (col: number) => {
+    const r = (col & (2 ** 8 - 1 << 16)) >> 16
+    const g = (col & (2 ** 8 - 1 << 8)) >> 8
+    const b = (col & (2 ** 8 - 1))
+    return `rgb(${r},${g},${b})`
+  }

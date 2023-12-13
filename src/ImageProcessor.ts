@@ -1,3 +1,4 @@
+import { MyMapId, MyMapCmp } from "./MyMap";
 import { Line, Point } from "./types";
 import { eq, eqLine } from "./utils";
 
@@ -287,8 +288,8 @@ export class ImageProcessor {
     };
   }
   allll() {
-    const walked = MyMap2(this.lineId.bind(this));
-    const borders = MyMap((a,b) => a[0]===b[0]&&a[1]===b[1] || a[0]===b[1]&&a[1]===b[0])
+    const walked = MyMapId(this.lineId.bind(this));
+    const borders = MyMapCmp((a,b) => a[0]===b[0]&&a[1]===b[1] || a[0]===b[1]&&a[1]===b[0])
     this.forEachPixel((c, i, j) => {
       const p: Point = [i, j];
       const [[lu, ru], [lb, rb]] = this.getSquare(i, j);
@@ -323,32 +324,4 @@ console.log(borders)
   }
 }
 
-const MyMap = <T>(cmp: (a:T, b:T) => boolean) => ({
-  data: [],
-  set(l: T, val: any) {
-    const i = this.data.findIndex((x) => cmp(x.key, l));
-    if (i !== -1) this.data[i].val = val;
-    else this.data.push({ key: l, val });
-  },
-  has(l: T) {
-    return this.data.findIndex((x) => cmp(x.key, l)) !== -1;
-  },
-  get(l: T, init: any) {
-    if(this.has(l))return this.data.find((x) => cmp(x.key, l)).val;
-    this.set(l, init)
-    return init
-  },
-});
 
-const MyMap2 = <T>(id: (a:T) => any) => ({
-  data: {},
-  set(l: T, val: any) {
-    this.data[id(l)] = val
-  },
-  has(l: T) {
-    return id(l) in this.data
-  },
-  get(l: T, init: any) {
-    return this.data[id(l)]
-  },
-});
