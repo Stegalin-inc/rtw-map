@@ -1,6 +1,6 @@
 import { MyMapId, MyMapCmp } from "./MyMap";
 import { Line, Point } from "./types";
-import { eq, eqLine } from "./utils";
+import { colToRgb, eq, eqLine, numToCol } from "./utils";
 
 export class ImageProcessor {
   data = [];
@@ -20,6 +20,13 @@ export class ImageProcessor {
     const base = (this.w * y + x) * 4;
     // console.log(d[base]);
     return [d[base], d[base + 1], d[base + 2]];
+  }
+  setPixel(x,y,num){
+    const base = (this.w * y + x) * 4;
+    const col = numToCol(num)
+    this.data[base] = col[0]
+    this.data[base+1] = col[1]
+    this.data[base+2] = col[2]
   }
   getCol(r, g, b) {
     return (r << 16) + (g << 8) + b;

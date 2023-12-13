@@ -13,6 +13,7 @@ export class WorldMap {
   constructor(ctx: CanvasRenderingContext2D, img: ImageProcessor) {
     this.ctx = ctx;
     this.img = img;
+    this.removeCityAndPorts()
     this.coast = this.getLineForCoast();
     this.borders = img.allll();
     this.borders.data.forEach((x) => {
@@ -58,6 +59,7 @@ export class WorldMap {
       const a = provs[x.key[0]];
       const b = provs[x.key[1]];
       if (!(a ^ b) && !(a && b)) return;
+      if(!conf.showBordersWithSea)
       if (x.key.includes(img.getCol(41, 140, 233))) return;
       x.val.forEach((y) => this.drawBorder([0xff1100, y, a && b]));
     });
@@ -97,6 +99,21 @@ export class WorldMap {
 
   toggleProv(col: number) {
     this.provs[col] = !this.provs[col];
+    console.log('sel provs: '+Object.keys(this.provs).length);
+    
     this.render();
+  }
+
+  removeCityAndPorts() {
+    const white = this.img.getCol(255, 255, 255)
+    const black = 0
+    const sea = this.img.getCol(41, 140, 233)
+    this.img.forEachPixel((c,x,y)=>{
+      if(c===white || c===black){
+        const [[a,b],[c,d]]=this.img.getSquare(x,y)
+        const neededCol = [a,b,c,d].find(x=>x!==sea)
+        this.img.setPixel(x,y, neededCol)
+      }
+    })
   }
 }

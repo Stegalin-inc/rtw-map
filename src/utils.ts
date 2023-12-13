@@ -90,9 +90,14 @@ export const eq = (a:Point|Line, b:Point|Line) => {
     return a === b
 }
 
-export const colToRgb = (col: number) => {
+export const numToCol = (col: number) => {
     const r = (col & (2 ** 8 - 1 << 16)) >> 16
     const g = (col & (2 ** 8 - 1 << 8)) >> 8
     const b = (col & (2 ** 8 - 1))
+    return [r, g, b]
+  }
+
+export const colToRgb = (col: number) => {
+    const [r,g,b] = numToCol(col)
     return `rgb(${r},${g},${b})`
   }
