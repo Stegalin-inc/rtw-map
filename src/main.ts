@@ -32,6 +32,10 @@ partRange.oninput = e=>{
   conf.chaikin.part = e.target.value
 }
 
+minProvsRange.oninput = e=>{
+  worldMap?.selTopMin(e.target.value)
+}
+
 function play(x = 0, y = 0) {
   worldMap = new WorldMap(ctx2, img)
   worldMap.render()

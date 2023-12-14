@@ -2,7 +2,8 @@ export const conf = {
   regionMode: 'path',
   needRemove: true,
   borderWidth: 0.5,
-  clearColor: '#464',
+  // clearColor: '#464',
+  clearColor: '#fff',
   seaColor: '#46a',
   showBordersWithSea: true,
   chaikin: {

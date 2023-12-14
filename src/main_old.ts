@@ -159,7 +159,7 @@ function play(x = 0, y = 0) {
     cnt[c] = (cnt[c] || 0) + 1
   }) */
   // console.table(Object.entries(cnt))
-  window.B = img.allll()
+  window.B = img.getAllBorders()
   window.B.data.forEach(x=>{
     // drawBorder([0, x.val.at(0)])
     x.val.forEach((y,i)=>{
