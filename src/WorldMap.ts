@@ -40,9 +40,28 @@ export class WorldMap {
     re()
   }
 
+  rebuildBorders(){
+    this.borders = this.img.getAllBorders();
+    this.borders.data.forEach((x) => {
+      // drawBorder([0, x.val.at(0)])
+      x.val.forEach((y, i) => {
+        let line = y;
+        const a = line.at(0);
+        const b = line.at(-1);
+        if (conf.needRemove) line = removeRepeate(y);
+        // line = chaikin(line, 2, 3 / 4)
+        line = chaikin(line, conf.chaikin.pass, conf.chaikin.part);
+        // line.pop()
+        for (let i = 0; i < 2 ** (conf.chaikin.pass + 1); ++i) line.pop();
+        x.val[i] = [a, ...line, b];
+      });
+    });
+  }
+
   render(){
     this.needRender = true
   }
+
   private _render() {
     const { ctx, coast } = this;
     const lines = coast || [];

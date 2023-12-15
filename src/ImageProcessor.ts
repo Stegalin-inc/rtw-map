@@ -6,11 +6,13 @@ export class ImageProcessor {
   data = [];
   w = 0;
   h = 0;
+  imageData: ImageData;
 
   init(w, h, d) {
     this.w = w;
     this.h = h;
     this.data = d;
+    this.imageData = new ImageData(d,w,h)
   }
 
   getPixel(x, y) {
@@ -45,6 +47,14 @@ export class ImageProcessor {
     return [
       [P(x - 1, y - 1), P(x, y - 1)],
       [P(x - 1, y), P(x, y)],
+    ];
+  }
+
+  _getSquare(x, y) {
+    // const P = this.getNum.bind(this);
+    return [
+      this.getNum(x - 1, y - 1), this.getNum(x, y - 1),
+      this.getNum(x - 1, y), this.getNum(x, y),
     ];
   }
 
@@ -126,8 +136,10 @@ export class ImageProcessor {
   }
 
   private lineId([a, b]: Line) {
-    if (this.pointId(a) < this.pointId(b)) return [a, b].toString();
-    return [b, a].toString();
+    const pida = this.pointId(a);
+    const pidb = this.pointId(b);
+    if (pida < pidb) return pida*this.w*this.h+pidb
+    return pidb*this.w*this.h+pida
   }
 
   allDirections([x, y]: Point) {
@@ -144,11 +156,12 @@ export class ImageProcessor {
     const borders = MyMapCmp(eq);
       this.forEachPixel((c, i, j) => {
         const p: Point = [i, j];
-        const [[lu, ru], [lb, rb]] = this.getSquare(i, j);
+        const [lu, ru, lb, rb] = this._getSquare(i, j);
         const dirs = this.allDirections(p);
         
         const check = (dir, a, b) => {
-          if (!walked.has([p, dir]) && a !== b) {
+          if (a === b || walked.has([p, dir])) return
+          {
           const localWalked = MyMapId(this.lineId.bind(this));
           let np = p, c=1000;
           while(c--){

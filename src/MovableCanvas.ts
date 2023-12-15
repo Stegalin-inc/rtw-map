@@ -29,12 +29,21 @@ export class Movable {
         this.redraw()
     }
 
-    onmousedown(e) {
-        this.moving = true;
-        this.last = [e.offsetX, e.offsetY]
+    onmousedown(e: MouseEvent) {
+        if(e.button & 1){
+
+            this.moving = true;
+            this.last = [e.offsetX, e.offsetY]
+        } else {
+            this.drawing =true
+        }
     }
 
     onmousemove(e) {
+        if(this.drawing){
+            const [x, y] = [e.offsetX, e.offsetY]
+            this.onDraw(this.getWorldCoord(x,y))
+        }
         if (!this.moving) return;
 
         const [lx, ly] = this.last
@@ -45,6 +54,7 @@ export class Movable {
 
     onmouseup(e) {
         this.moving = false;
+        this.drawing = false;
     }
 
     onwheel(e) {
@@ -73,6 +83,8 @@ export class Movable {
         return [~~xx, ~~yy]
     }
     onClickWorld(e) {
+    }
+    onDraw(e) {
     }
     onclick(e) {
         const [x, y] = [e.offsetX, e.offsetY]

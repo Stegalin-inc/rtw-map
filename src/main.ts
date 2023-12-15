@@ -20,13 +20,18 @@ const mov2 = new Movable(canvas, ctx, ()=>{
   ctx.drawImage(map, 0, 0)
 })
 
-mov2.onClickWorld = (([x,y])=>{
+mov.onClickWorld = (([x,y])=>{
   if(!worldMap) return
 worldMap.toggleProv(img.getNum(x,y))
 })
-mov.onClickWorld = mov2.onClickWorld
-mov.bindAnother(mov2)
-
+mov2.onDraw = ([x,y]) => {
+worldMap?.img.setPixel(x,y, 0xff1203)
+worldMap?.rebuildBorders()
+worldMap?.render()
+ctx.drawImage(map, 0, 0)
+}
+// mov.bindAnother(mov2)
+mov.onDraw=mov2.onDraw
 
 partRange.oninput = e=>{
   conf.chaikin.part = e.target.value
