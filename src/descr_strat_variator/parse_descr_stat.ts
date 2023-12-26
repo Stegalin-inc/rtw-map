@@ -18,26 +18,41 @@ function main(txt: string) {
 		return txt[idx++]
 	})
 
-	const result = {};
+	const result = {
+		core_attitudes: [],
+		faction_relationships: [],
+	};
 	const next = (until) => (until ? parser.toksUntil(until) : parser.token());
 	while (1) {
 		let tk = next();
 		if (tk === undefined) break;
-		if (["playable", "unlockable", "nonplayable"].includes(tk)) {
+		if (["core_attitudes", "faction_relationships",].includes(tk)) {
+			result[tk].push({
+				from: next(),
+				value: next(),
+				to: next("\n"),
+			})
+		}
+		else if (["playable", "unlockable", "nonplayable"].includes(tk)) {
 			result[tk] = next("end");
+		} else if (["campaign", "brigand_spawn_value", "pirate_spawn_value"].includes(tk)) {
+			result[tk] = next();
 		} else if (["start_date", "end_date"].includes(tk)) {
 			result[tk] = [next(), next()];
 		} else if (["landmark", "resource"].includes(tk)) {
 			result[tk] ||= [];
 			result[tk].push([next(), next(), next()]);
+		} else if (["superfaction", "denari"].includes(tk)) {
+			result.faction.at(-1)[tk] = next();
 		} else if (["faction"].includes(tk)) {
 			result[tk] ||= [];
 			result[tk].push({
 				name: next(),
 				ai: [next(), next()],
-				[next()]: next(),
 				settlement: [],
 				character: [],
+				character_record: [],
+				relative: [],
 			});
 		} else if (["night_battles_enabled"].includes(tk)) {
 			result[tk] = true;
@@ -90,8 +105,26 @@ function main(txt: string) {
 		} else if (["ancillaries"].includes(tk)) {
 			const ancillaries = next("\n");
 			result.faction.at(-1).character.at(-1).ancillaries = (ancillaries);
+		} else if (["character_record"].includes(tk)) {
+			const character_record = {
+				name: next(','),
+				sex: next(),
+				[next()]: next(),
+				[next()]: next(),
+				[next()]: next(),
+				[next()]: next(),
+				[next()]: next(),
+				[next()]: true,
+				[next()]: true,
+			}
+			result.faction.at(-1).character_record.push(character_record)
+			
+		} else if (["relative"].includes(tk)) {
+			result.faction.at(-1).relative.push(parser.untilNl())
+		} else if (["army"].includes(tk)) {
 		}
-		// else result[tk] = next()
+		else console.log(tk, parser.line);
+
 	};
 	// result.resource = [];
 	console.log(result);

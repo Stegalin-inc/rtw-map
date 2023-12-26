@@ -1,3 +1,4 @@
+const alnumRe = /^[0-9a-z_+]$/i;
 const charRe = /^[a-z_]$/i;
 const numRe = /^[0-9-]$/i;
 type Tok = string | number | undefined
@@ -5,6 +6,7 @@ export class Parser {
     nextChar: () => string;
     curr: string = '';
     next: string = '';
+    line = 0;
     // text: txt,
     constructor(nextChar: () => string) {
         this.nextChar = nextChar
@@ -14,6 +16,7 @@ export class Parser {
     step() {
         this.curr = this.next;
         this.next = this.nextChar();
+        if(this.next === '\n') this.line++
     }
     skipComment() {
         while (this.curr !== "\n") this.step();
@@ -22,7 +25,7 @@ export class Parser {
     getWord() {
         let result = "";
         while (true) {
-            if (charRe.test(this.curr)) result += this.curr;
+            if (alnumRe.test(this.curr)) result += this.curr;
             else return result;
             this.step();
         }
