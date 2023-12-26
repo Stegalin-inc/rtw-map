@@ -1,5 +1,15 @@
 import { Parser } from "./Parser";
 
+type AIPersonality = 'genghis' | 'henry' | 'mao' | 'smith' | 'stalin' | 'napoleon' | 'caesar'
+type AIStrategy = 'balanced' |
+	'religious' |
+	'trader' |
+	'comfort' |
+	'bureaucrat' |
+	'craftsman' |
+	'sailor' |
+	'fortified'
+
 function main(txt: string) {
 
 
