@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev_dsv": "vite src/descr_strat_variator",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
