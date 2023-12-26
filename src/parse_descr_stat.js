@@ -8901,7 +8901,7 @@ new Array(6800).fill(1).forEach((i) => {
 
     const unit = {
       name: next("exp"),
-      propы: [next(), (next(), next()), ( next(), next()),]
+      props: [next(), (next(), next()), ( next(), next()),]
     };
     result.faction.at(-1).character.at(-1).unit.push(unit);
   } else if (["traits"].includes(tk)) {
@@ -8913,8 +8913,8 @@ new Array(6800).fill(1).forEach((i) => {
   }
   // else result[tk] = next()
 });
-result.resource = [];
-console.log(JSON.stringify(result, null, 2));
+// result.resource = [];
+console.log(result);
 
 function arrToObj(arr) {
   const result = {};
