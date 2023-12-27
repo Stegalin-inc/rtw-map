@@ -77,7 +77,12 @@ parsed.faction.forEach((f) => {
     charDiv.innerText = c.name;
     const mlp = 7;
     charDiv.style = `left: ${c.pos[0] * mlp}; top: ${1000 - c.pos[1] * mlp}; --p: ${~~(c.unit.length/20*100)+'%'};`
-    charDiv.dataset.info = JSON.stringify(c, null, 2)
+    charDiv.dataset.info = `
+    ${f.name}
+    ${c.role || ''}
+    ${c.type}
+    age: ${c.age}
+    `
     stratContainer.append(charDiv);
     c.age = variate(c.age, 20, 16);
   });
