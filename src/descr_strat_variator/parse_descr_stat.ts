@@ -1,24 +1,13 @@
 import { Parser } from "./Parser";
+import { Descr_Strat } from "./types";
 
-type AIPersonality = 'genghis' | 'henry' | 'mao' | 'smith' | 'stalin' | 'napoleon' | 'caesar'
-type AIStrategy = 'balanced' |
-	'religious' |
-	'trader' |
-	'comfort' |
-	'bureaucrat' |
-	'craftsman' |
-	'sailor' |
-	'fortified'
-
-function main(txt: string) {
-
-
+export function parse_descr_stat(txt: string): Descr_Strat {
 	let idx = 0;
 	const parser = new Parser(() => {
 		return txt[idx++]
 	})
 
-	const result = {
+	const result: any = {
 		core_attitudes: [],
 		faction_relationships: [],
 	};
@@ -126,23 +115,12 @@ function main(txt: string) {
 		else console.log(tk, parser.line);
 
 	};
-	// result.resource = [];
-	console.log(result);
+
+	return result
+}
 
 	function arrToObj(arr) {
 		const result = {};
 		for (let i = 0; i < arr.length; i += 2) result[arr[i]] = arr[i + 1];
 		return result;
 	}
-}
-
-const fileEl = document.getElementById('descr_strat_file')!
-
-fileEl.onchange = async (e) => {
-	const file: File = e.target.files[0]
-	const a = await file.text()
-	// console.log(a);
-
-	main(a)
-
-}
