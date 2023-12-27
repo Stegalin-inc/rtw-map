@@ -1,8 +1,11 @@
 import { parse_descr_stat } from "./parse_descr_stat";
 import descrt from "./descr_strat.txt?raw";
 import { gen_descr_stat } from "./gen_descr_stat";
+import { download } from "./utils";
 
 const parsed = parse_descr_stat(descrt);
+download('descr_strat.txt', gen_descr_stat(parsed));
+
 console.log(
   descrt
     .split("\n")
@@ -48,7 +51,6 @@ const strategy = [
   "trader",
   "comfort",
   "bureaucrat",
-  "craftsman",
   "sailor",
   "fortified",
 ];
@@ -84,7 +86,7 @@ parsed.faction.forEach((f) => {
     age: ${c.age}
     `
     stratContainer.append(charDiv);
-    c.age = variate(c.age, 20, 16);
+    // c.age = variate(c.age, 20, 16);
   });
   f.settlement.forEach((c) => {
     c.population = variate(c.population, 20);
@@ -97,9 +99,9 @@ parsed.faction.forEach((f) => {
 });
 const sum = arr => arr.reduce((a,b)=>a+b, 0)
 const tableData = parsed.faction.map(faction=>({
-  name: faction.name,
-  ai: faction.ai.join(' '),
-  denari: faction.denari,
+    name: faction.name,
+    ai: faction.ai.join(' '),
+    denari: faction.denari,
   totalPopulation: sum(faction.settlement.map(x=>x.population)),
   countCity: faction.settlement.length,
   provs: faction.settlement.map(x=>x.region).toString(),
@@ -110,14 +112,14 @@ console.table(tableData);
 parsed.brigand_spawn_value = variate(parsed.brigand_spawn_value, 20);
 parsed.pirate_spawn_value = variate(parsed.pirate_spawn_value, 20);
 parsed.core_attitudes.forEach((ca) => {
-  ca.value = variate(300, 100);
+    ca.value = variate(300, 100);
 });
 parsed.faction_relationships.forEach((ca) => {
   ca.value = variate(300, 100);
 });
 
+download('descr_strat.txt', gen_descr_stat(parsed));
 console.log(parsed);
-console.log(gen_descr_stat(parsed));
 const fileEl = document.getElementById("descr_strat_file")!;
 
 fileEl.onchange = async (e) => {

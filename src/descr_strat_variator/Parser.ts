@@ -1,4 +1,4 @@
-const alnumRe = /^[0-9a-z_+]$/i;
+const alnumRe = /^[0-9a-z_+']$/i;
 const charRe = /^[a-z_]$/i;
 const numRe = /^[0-9-]$/i;
 type Tok = string | number | undefined

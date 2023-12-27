@@ -1,15 +1,24 @@
 import { Descr_Strat, Faction, Settlement } from "./types";
+/* 
+character\tобязательно
+unit name\tобязательно
+character_record\tобязательно(вылет)
+relative\tобязательно
 
+{} на новой строке обязательно
+\r\n окончание обязательно
+
+*/
 export function gen_descr_stat(data: Descr_Strat): string {
   let result = "";
-  const addLine = (str: string) => (result += str + "\n");
-  const simpleProp = (k: keyof Descr_Strat, joiner = " ") => {
-    if (Array.isArray(data[k])) addLine(k + " " + data[k].join(joiner));
-    else addLine(k + " " + data[k]);
+  const addLine = (str: string) => (result += str + "\r\n");
+  const simpleProp = (k: keyof Descr_Strat, joiner = " ", sep = ' ') => {
+    if (Array.isArray(data[k])) addLine(k + sep + data[k].join(joiner));
+    else addLine(k + sep + data[k]);
   };
 
   const genSettlement = (settlement: Settlement) => {
-    addLine(`settlement\n{`);
+    addLine(`settlement\r\n{`);
     addLine(`level ${settlement.level}`);
     addLine(`region ${settlement.region}`);
     addLine(`year_founded ${settlement.year_founded}`);
@@ -18,11 +27,7 @@ export function gen_descr_stat(data: Descr_Strat): string {
     addLine(`faction_creator ${settlement.faction_creator}`);
     settlement.building.forEach((building) => {
       addLine(
-        `building 
-{
-    type ${building.type.join(" ")}
-}
-`
+        `building\r\n{\r\ntype ${building.type.join(" ")}\r\n}`
       );
     });
     addLine(`}`);
@@ -35,7 +40,7 @@ export function gen_descr_stat(data: Descr_Strat): string {
     faction.settlement.forEach(genSettlement);
     faction.character.forEach((c) => {
       addLine(
-        `character	${c.sub_faction ? `sub_faction ${c.sub_faction},` : ""} ${c.name}, ${c.type}, ${
+        `character\t${c.sub_faction ? `sub_faction ${c.sub_faction}, ` : ""}${c.name}, ${c.type}, ${
           c.role ? c.role + "," : ""
         } age ${c.age}, , x ${c.pos[0]}, y ${c.pos[1]} `
       );
@@ -66,16 +71,16 @@ export function gen_descr_stat(data: Descr_Strat): string {
       );
     });
     faction.relative.forEach((r) => {
-      addLine("relative " + r);
+      addLine("relative\t" + r+'\n');
     });
   };
   addLine('; Genered by descr strat variator tool by Gleb Stegalin')
    simpleProp('campaign')
-    simpleProp('playable', '\n\t')
+    simpleProp('playable', '\r\n\t', '\r\n')
     addLine('end')
-    simpleProp('unlockable', '\n\t')
+    simpleProp('unlockable', '\r\n\t', '\r\n')
     addLine('end')
-    simpleProp('nonplayable', '\n\t')
+    simpleProp('nonplayable', '\r\n\t', '\r\n')
     addLine('end')
     simpleProp('start_date')
     simpleProp('end_date')
