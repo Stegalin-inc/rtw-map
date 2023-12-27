@@ -1,2 +1,68 @@
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+<style>
+  #settings-container{
+    border: 1px solid rgba(0, 0, 0, 0.881);
+    border-radius: 7px;
+    display: grid;
+    grid-template-columns: 150px 20px 200px;
+    padding: 10px;
+    gap: 5px;
+  }
+  #strat-container {
+    position: relative;
+  }
+  #strat-container div{
+    position: absolute;
+    font-size: 5px;
+    border: 1px solid black;
+    background: linear-gradient(to right, red var(--p), white 1%);
+  }
+  #strat-container div:hover{
+    content: attr(data-info);
+    z-index: 12;
+    transform: scale(3);
+    background: linear-gradient(to right, red var(--p), white 1%);
+    max-width: 270px;
+  }
+  #strat-container div:hover::after{
+    content: attr(data-info);
+    font-size: 2px;
+    width: 270px;
+  }
+</style>
 <input type="file" name="descr_strat_file" id="descr_strat_file">
+<div id="settings-container"></div>
+<div id="strat-container"></div>
 <script type="module" src="main.ts"></script>
+
+<!-- Дни юности отсохли как листья
+Их ветром в даль унесло
+Как перестать мне жалеть
+Что все так бездарно прошло
+
+Я живу как заключенный
+в одиночной комнате темной
+
+Моя юность уходит
+я ей кричу - подожди
+Останься хоть не надолго
+я думал все еще впереди
+
+Я смотрю в зеркало, 
+я больше не вижу юнца
+Я знаю - это начало конца
+
+Я жирный скуф
+Простата уже не фурычит
+В моей жизни от меня
+Почти ничего не зависит
+
+Юность ушла не прощавщись
+Я жду ее хотя бы во сне
+Те дни закончились только начавшись
+Но до сих пор так дороги мне
+
+Я наверное родился старым
+Так почему до сих пор я не умираю
+Молодостью насладились другие
+В сплетение телами нагими -->

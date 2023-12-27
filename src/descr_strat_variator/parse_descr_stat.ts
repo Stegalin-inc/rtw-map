@@ -60,21 +60,24 @@ export function parse_descr_stat(txt: string): Descr_Strat {
 			const building = {
 				[next()]: [next(), next()],
 			};
-			// result.faction.at(-1).settlement.at(-1).building.push(building)
+			result.faction.at(-1).settlement.at(-1).building.push(building)
 		} else if (["character"].includes(tk)) {
 			const a = parser.untilNl().trim().split(", ");
-			let [name, type] = a;
+			let [name, type, role] = a;
 			let sub_faction
 			if (name.split(' ')[0] === 'sub_faction') {
 				sub_faction = name.split(' ')[1]
 				name = a[1]
 				type = a[2]
+				role = a[3]
 			}
+			role = ['leader', 'heir'].includes(role) ? role: undefined
 			const [age, _, x, y] = a.slice(-4).map((x) => +x.split(" ")[1]);
 			const character = {
 				name,
 				type,
 				age,
+				role,
 				pos: [x, y],
 				sub_faction,
 				unit: [],

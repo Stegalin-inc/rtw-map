@@ -88,7 +88,7 @@ export interface Settlement {
     population:      number;
     plan_set:        "default_set";
     faction_creator: FactionName;
-    building:        any[];
+    building:        {type: [string, string]}[];
 }
 
 export enum Level {
