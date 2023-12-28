@@ -7,6 +7,7 @@ export class Parser {
     curr: string = '';
     next: string = '';
     line = 0;
+    cntSteps = 0;
     // text: txt,
     constructor(nextChar: () => string) {
         this.nextChar = nextChar
@@ -17,9 +18,10 @@ export class Parser {
         this.curr = this.next;
         this.next = this.nextChar();
         if(this.next === '\n') this.line++
+        if(this.cntSteps++>1000000) throw new Error('too much')
     }
     skipComment() {
-        while (this.curr !== "\n") this.step();
+        while (this.curr !== "\n" && this.curr !== undefined) this.step();
         this.step();
     }
     getWord() {

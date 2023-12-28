@@ -1,17 +1,13 @@
 import { parse_descr_stat } from "./parse_descr_stat";
 import descrt from "./descr_strat.txt?raw";
 import { gen_descr_stat } from "./gen_descr_stat";
-import { download } from "./utils";
+import { download, logRand, randArr, sum, variate } from "./utils";
+import { MovableDom } from "./MovableDom";
+import { Movable } from "../MovableCanvas";
 
 const parsed = parse_descr_stat(descrt);
-download('descr_strat.txt', gen_descr_stat(parsed));
+console.log(parsed);
 
-console.log(
-  descrt
-    .split("\n")
-    .filter((x) => /character\W/.test(x))
-    .map((x) => x.split(/,/))
-);
 const settings = {
   values: [
     "ai",
@@ -42,50 +38,91 @@ const settings = {
     });
   },
 };
-window.settings = settings;
-settings.init();
+// settings.init();
 const personality = ["genghis", "henry", "mao", "smith", "stalin", "napoleon", "caesar"];
-const strategy = [
-  "balanced",
-  "religious",
-  "trader",
-  "comfort",
-  "bureaucrat",
-  "sailor",
-  "fortified",
-];
+const strategy = ["balanced","religious","trader","comfort","bureaucrat","sailor","fortified",];
 
-const variate = (val: number, factor: number = 20, min = 0, max = Number.MAX_SAFE_INTEGER) => {
-  const r = 1 + ((Math.random() * 2 - 1) * factor) / 100;
-  return Math.min(max, Math.max(min, ~~(val * r)));
-};
-
-const randArr = (arr) => arr[~~(arr.length * Math.random())];
-
-// логарифмический рандом от 0 до х
-// вероятность получить большее число в 2 раза меньше чем меньшее
-// пример 0 - 50%, 1 - 25%,, 2 - 12%, и т.д. 
-const logRand = x=> ~~(x-Math.log2(~~(Math.random()*2**x)))
-randArr(strategy);
-randArr(personality);
-console.log(randArr(strategy), randArr(personality));
 const stratContainer = document.getElementById("strat-container");
+// new MovableDom(stratContainer!, stratContainer?.parentElement)
+const fcol = {
+  "romans_julii": "#f11",
+  "romans_brutii": "#2d5",
+  "romans_scipii": "#25d",
+  "romans_senate": "#a3f",
+  "macedon": "#313",
+  "egypt": "#dd2",
+  "seleucid": "#aaa",
+  "carthage": "#ddd",
+  "parthia": "#d3d",
+  "pontus": "#2df",
+  "gauls": "#192",
+  "germans": "#913",
+  "britons": "#5df",
+  "armenia": "#2fd",
+  "dacia": "#660",
+  "greek_cities": "#ffa",
+  "numidia": "#159",
+  "scythia": "#fa3",
+  "spain": "#da2",
+  "thrace": "#adf",
+  "slave": "#777"
+}
+{
 
+  const stratCnv = document.getElementsByTagName("canvas")[0];
+  const ctx = stratCnv.getContext('2d')!
+  const m = new Movable(stratCnv, ctx, ()=>{
+    ctx.clearRect(0,0,1000,1000)
+    const sz = 1
+    parsed.faction.forEach((f) => {
+      f.character.forEach((c) => {
+        let [x,y] = c.pos
+        y=200-y
+        ctx.strokeStyle=fcol[f.name]
+        ctx.beginPath()
+        ctx.moveTo(x,y)
+        ctx.lineTo(x+sz,y)
+        ctx.lineTo(x+sz,y+sz)
+        ctx.lineTo(x,y+sz)
+        // ctx.lineTo(x,y)
+        ctx.closePath()
+        ctx.stroke()
+      })
+    })
+  })
+  m.onClickWorld = ([x,y]) => {
+    const [mx, my] = [x,200-y]
+    parsed.faction.forEach((f) => {
+      f.character.forEach((c) => {
+        if(c.pos[0]===mx && c.pos[1]===my )
+        info.innerText = (
+`${f.name} ${c.role?c.role+' ':''}${c.type} ${c.name} age ${c.age}
+${c.unit.map(x=>x.name.join(' ')+'('+x.props+')').join('\n')}`
+          )
+      })
+    })
+  }
+
+}
 parsed.faction.forEach((f) => {
   f.ai = [randArr(strategy), randArr(personality)];
   f.denari = variate(f.denari, 20, -100000);
   f.character.forEach((c) => {
     const charDiv = document.createElement("div");
-    charDiv.innerText = c.name;
-    const mlp = 7;
-    charDiv.style = `left: ${c.pos[0] * mlp}; top: ${1000 - c.pos[1] * mlp}; --p: ${~~(c.unit.length/20*100)+'%'};`
+    // charDiv.innerText = c.name;
+
+    const mlp = 5;
+    charDiv.style = `left: ${c.pos[0] * mlp}; top: ${1000 - c.pos[1] * mlp}; --c: ${fcol[f.name]}; --p: ${~~(c.unit.length/20*100)+'%'};`
+    charDiv.onclick = () => {
+      info.innerText = JSON.stringify(c, null, 2)
+    }
     charDiv.dataset.info = `
     ${f.name}
     ${c.role || ''}
     ${c.type}
     age: ${c.age}
     `
-    stratContainer.append(charDiv);
+    // stratContainer.append(charDiv);
     // c.age = variate(c.age, 20, 16);
   });
   f.settlement.forEach((c) => {
@@ -97,7 +134,6 @@ parsed.faction.forEach((f) => {
     })
   });
 });
-const sum = arr => arr.reduce((a,b)=>a+b, 0)
 const tableData = parsed.faction.map(faction=>({
     name: faction.name,
     ai: faction.ai.join(' '),
@@ -118,8 +154,8 @@ parsed.faction_relationships.forEach((ca) => {
   ca.value = variate(300, 100);
 });
 
-download('descr_strat.txt', gen_descr_stat(parsed));
-console.log(parsed);
+// download('descr_strat.txt', gen_descr_stat(parsed));
+
 const fileEl = document.getElementById("descr_strat_file")!;
 
 fileEl.onchange = async (e) => {

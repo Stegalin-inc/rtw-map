@@ -8,20 +8,33 @@
     padding: 10px;
     gap: 5px;
   }
+  #info {
+    padding: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.881);
+    border-radius: 7px;
+  }
+  #strat  {
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.881);
+    height: 500px;
+  }
   #strat-container {
     position: relative;
+    height: 100%;
   }
   #strat-container div{
     position: absolute;
     font-size: 5px;
-    border: 1px solid black;
-    background: linear-gradient(to right, red var(--p), white 1%);
+    border: 0.1px solid black;
+    width: 10px;
+    height: 5px;
+    background: linear-gradient(to right, var(--c) var(--p), white 1%);
   }
   #strat-container div:hover{
     content: attr(data-info);
     z-index: 12;
     transform: scale(3);
-    background: linear-gradient(to right, red var(--p), white 1%);
+    /* background: linear-gradient(to right, red var(--p), white 1%); */
     max-width: 270px;
   }
   #strat-container div:hover::after{
@@ -31,8 +44,11 @@
   }
 </style>
 <input type="file" name="descr_strat_file" id="descr_strat_file">
-<div id="settings-container"></div>
-<div id="strat-container"></div>
+<div id="strat">
+  <canvas id="stratcnv" width="800" height="400"></canvas>
+  <!-- <div id="strat-container"></div> -->
+</div>
+  <pre id="info"></pre>
 <script type="module" src="main.ts"></script>
 
 <!-- Дни юности отсохли как листья
