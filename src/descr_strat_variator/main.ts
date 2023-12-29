@@ -4,9 +4,10 @@ import { gen_descr_stat } from "./gen_descr_stat";
 import { download, logRand, randArr, sum, variate } from "./utils";
 import { MovableDom } from "./MovableDom";
 import { Movable } from "../MovableCanvas";
+import { createTable } from "./Table";
 
 const parsed = parse_descr_stat(descrt);
-console.log(parsed);
+console.log(descrt.split("\n").filter((x) => /character\t/.test(x)));
 
 const settings = {
   values: [
@@ -40,69 +41,111 @@ const settings = {
 };
 // settings.init();
 const personality = ["genghis", "henry", "mao", "smith", "stalin", "napoleon", "caesar"];
-const strategy = ["balanced","religious","trader","comfort","bureaucrat","sailor","fortified",];
+const strategy = [
+  "balanced",
+  "religious",
+  "trader",
+  "comfort",
+  "bureaucrat",
+  "sailor",
+  "fortified",
+];
 
 const stratContainer = document.getElementById("strat-container");
 // new MovableDom(stratContainer!, stratContainer?.parentElement)
 const fcol = {
-  "romans_julii": "#f11",
-  "romans_brutii": "#2d5",
-  "romans_scipii": "#25d",
-  "romans_senate": "#a3f",
-  "macedon": "#313",
-  "egypt": "#dd2",
-  "seleucid": "#aaa",
-  "carthage": "#ddd",
-  "parthia": "#d3d",
-  "pontus": "#2df",
-  "gauls": "#192",
-  "germans": "#913",
-  "britons": "#5df",
-  "armenia": "#2fd",
-  "dacia": "#660",
-  "greek_cities": "#ffa",
-  "numidia": "#159",
-  "scythia": "#fa3",
-  "spain": "#da2",
-  "thrace": "#adf",
-  "slave": "#777"
-}
+  romans_julii: "#f11",
+  romans_brutii: "#2d5",
+  romans_scipii: "#25d",
+  romans_senate: "#a3f",
+  macedon: "#323",
+  egypt: "#dd2",
+  seleucid: "#aaa",
+  carthage: "#ddd",
+  parthia: "#d3d",
+  pontus: "#2df",
+  gauls: "#192",
+  germans: "#913",
+  britons: "#5df",
+  armenia: "#2fd",
+  dacia: "#660",
+  greek_cities: "#ffa",
+  numidia: "#159",
+  scythia: "#fa3",
+  spain: "#da2",
+  thrace: "#adf",
+  slave: "#777",
+};
+const tableData = parsed.faction.map((faction) => ({
+  name: faction.name,
+  ai: faction.ai.join(" "),
+  denari: faction.denari,
+  totalPopulation: sum(faction.settlement.map((x) => x.population)),
+  countCity: faction.settlement.length,
+  provs: faction.settlement.map((x) => x.region).toString(),
+  countUnits: sum(faction.character.map((x) => x.unit.length)),
+  // countUnits: sum(faction.character.map((x) => x.unit.length)),
+}));
+
+document.body.append(createTable(tableData, [
+  { prop: "name", header: "Имя" },
+  { prop: "ai", header: "ИИ" },
+  { prop: "countCity", header: "Города", cmp: (a,b)=>a-b },
+  { prop: "countUnits", header: "К-во юнитов", cmp: (a,b)=>a-b },
+  { prop: "denari", header: "Денары", cmp: (a,b)=>a-b },
+  { prop: "totalPopulation", header: "К-во населения", cmp: (a,b)=>a-b },
+  { prop: "provs", header: "Провинции" },
+]));
+
+const cities = parsed.faction.flatMap(f=>f.settlement.map(x=>({...x, faction: f.name})))
+document.body.append(createTable(cities, [
+  { prop: "faction", header: "Фракция", render: f=>`<b style="color: ${fcol[f]};">${f}</b>` },
+  { prop: "region", header: "Регион" },
+  { prop: "level", header: "Уровень" },
+  { prop: "population", header: "Население", cmp: (a,b)=>a-b },
+]));
+
+const armies = parsed.faction.flatMap(f=>f.character.map(x=>({...x, faction: f.name})))
+document.body.append(createTable(armies, [
+  { prop: "faction", header: "Фракция", render: f=>`<b style="color: ${fcol[f]};">${f}</b>` },
+  { prop: "name", header: "Имя" },
+  { prop: "age", header: "Возраст", cmp: (a,b)=>a-b },
+  { prop: "type", header: "Тип", render: x=>x },
+  { prop: "unit", header: "Армия", cmp: (a,b)=>a.length-b.length, render: a=>a.length },
+]));
 {
-
   const stratCnv = document.getElementsByTagName("canvas")[0];
-  const ctx = stratCnv.getContext('2d')!
-  const m = new Movable(stratCnv, ctx, ()=>{
-    ctx.clearRect(0,0,1000,1000)
-    const sz = 1
+  const ctx = stratCnv.getContext("2d")!;
+  const m = new Movable(stratCnv, ctx, () => {
+    ctx.clearRect(0, 0, 1000, 1000);
+    const sz = 1;
     parsed.faction.forEach((f) => {
       f.character.forEach((c) => {
-        let [x,y] = c.pos
-        y=200-y
-        ctx.strokeStyle=fcol[f.name]
-        ctx.beginPath()
-        ctx.moveTo(x,y)
-        ctx.lineTo(x+sz,y)
-        ctx.lineTo(x+sz,y+sz)
-        ctx.lineTo(x,y+sz)
+        if (!(c.type === "general" || c.type === "named character")) return;
+        let [x, y] = c.pos;
+        y = 200 - y;
+        ctx.strokeStyle = fcol[f.name];
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + sz, y);
+        ctx.lineTo(x + sz, y + sz);
+        ctx.lineTo(x, y + sz);
         // ctx.lineTo(x,y)
-        ctx.closePath()
-        ctx.stroke()
-      })
-    })
-  })
-  m.onClickWorld = ([x,y]) => {
-    const [mx, my] = [x,200-y]
+        ctx.closePath();
+        ctx.stroke();
+      });
+    });
+  });
+  m.onClickWorld = ([x, y]) => {
+    const [mx, my] = [x, 200 - y];
     parsed.faction.forEach((f) => {
       f.character.forEach((c) => {
-        if(c.pos[0]===mx && c.pos[1]===my )
-        info.innerText = (
-`${f.name} ${c.role?c.role+' ':''}${c.type} ${c.name} age ${c.age}
-${c.unit.map(x=>x.name.join(' ')+'('+x.props+')').join('\n')}`
-          )
-      })
-    })
-  }
-
+        if (c.pos[0] === mx && c.pos[1] === my)
+          info.innerText = `${f.name} ${c.role ? c.role + " " : ""}${c.type} ${c.name} age ${c.age}
+${c.unit.map((x) => x.name.join(" ") + "(" + x.props + ")").join("\n")}`;
+      });
+    });
+  };
 }
 parsed.faction.forEach((f) => {
   f.ai = [randArr(strategy), randArr(personality)];
@@ -112,16 +155,18 @@ parsed.faction.forEach((f) => {
     // charDiv.innerText = c.name;
 
     const mlp = 5;
-    charDiv.style = `left: ${c.pos[0] * mlp}; top: ${1000 - c.pos[1] * mlp}; --c: ${fcol[f.name]}; --p: ${~~(c.unit.length/20*100)+'%'};`
+    charDiv.style = `left: ${c.pos[0] * mlp}; top: ${1000 - c.pos[1] * mlp}; --c: ${
+      fcol[f.name]
+    }; --p: ${~~((c.unit.length / 20) * 100) + "%"};`;
     charDiv.onclick = () => {
-      info.innerText = JSON.stringify(c, null, 2)
-    }
+      info.innerText = JSON.stringify(c, null, 2);
+    };
     charDiv.dataset.info = `
     ${f.name}
-    ${c.role || ''}
+    ${c.role || ""}
     ${c.type}
     age: ${c.age}
-    `
+    `;
     // stratContainer.append(charDiv);
     // c.age = variate(c.age, 20, 16);
   });
@@ -129,26 +174,17 @@ parsed.faction.forEach((f) => {
     c.population = variate(c.population, 20);
   });
   f.character.forEach((c) => {
-    c.unit.forEach(u=>{
-      u.props = [logRand(9), logRand(3), logRand(3)]
-    })
+    c.unit.forEach((u) => {
+      u.props = [logRand(9), logRand(3), logRand(3)];
+    });
   });
 });
-const tableData = parsed.faction.map(faction=>({
-    name: faction.name,
-    ai: faction.ai.join(' '),
-    denari: faction.denari,
-  totalPopulation: sum(faction.settlement.map(x=>x.population)),
-  countCity: faction.settlement.length,
-  provs: faction.settlement.map(x=>x.region).toString(),
-  countUnits: sum(faction.character.map(x=>x.unit.length)),
-}))
-console.table(tableData);
+
 
 parsed.brigand_spawn_value = variate(parsed.brigand_spawn_value, 20);
 parsed.pirate_spawn_value = variate(parsed.pirate_spawn_value, 20);
 parsed.core_attitudes.forEach((ca) => {
-    ca.value = variate(300, 100);
+  ca.value = variate(300, 100);
 });
 parsed.faction_relationships.forEach((ca) => {
   ca.value = variate(300, 100);

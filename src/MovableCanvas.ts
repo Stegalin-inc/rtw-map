@@ -30,6 +30,7 @@ export class Movable {
     }
 
     onmousedown(e: MouseEvent) {
+        e.preventDefault()
         if(e.button & 1){
 
             this.moving = true;
@@ -58,6 +59,7 @@ export class Movable {
     }
 
     onwheel(e) {
+        e.preventDefault()
         const factor = e.deltaY < 0 ? 1.1 : 0.9
         const [mx, my] = [e.offsetX, e.offsetY]
         this.zoomTo(factor, mx, my)
